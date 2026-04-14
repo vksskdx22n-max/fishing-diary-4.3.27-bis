@@ -207,7 +207,7 @@ if(localStorage.getItem('fd_pwd_ok')===_PWD_HASH){
     <div>
       <div class="header-title">🎣 Fishing Diary</div>
       <div style="font-size:16px;font-weight:600;color:#fff;opacity:.9;margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,.4);padding-left:1.6em">Laguna di Venezia</div>
-      <div style="font-size:12px;color:#fff;opacity:.85;margin-top:4px;padding-left:1.6em;letter-spacing:.05em;text-shadow:0 1px 3px rgba(0,0,0,.4)">vers. 4.3.27 · <a href="https://docs.google.com/forms/d/e/1FAIpQLSdixNuJt0e-KEVQgPTVMowOy4RxPMTRqrkozU_R-AoeFHy4zA/viewform?usp=header" target="_blank" style="color:#fff;opacity:.9;text-decoration:underline">✉️ Segnala un problema</a></div>
+      <div style="font-size:12px;color:#fff;opacity:.85;margin-top:4px;padding-left:1.6em;letter-spacing:.05em;text-shadow:0 1px 3px rgba(0,0,0,.4)">vers. 4.3.28 · <a href="https://docs.google.com/forms/d/e/1FAIpQLSdixNuJt0e-KEVQgPTVMowOy4RxPMTRqrkozU_R-AoeFHy4zA/viewform?usp=header" target="_blank" style="color:#fff;opacity:.9;text-decoration:underline">✉️ Segnala un problema</a></div>
       <div class="header-info" style="margin-top:8px">I dati vengono salvati nel browser. <b>Esporta</b> regolarmente in JSON/CSV per non perderli.</div>
     </div>
     <div class="header-pescatore">
@@ -1326,6 +1326,7 @@ function renderStats(){
   // correlazioni
   var perMarea={},perLuna={},perMeteo={};
   uscite.forEach(function(u){
+    if(!u.meteo)u.meteo={};
     var n=u.catture.length;
     if(u.meteo.marea){perMarea[u.meteo.marea]=(perMarea[u.meteo.marea]||{n:0,c:0});perMarea[u.meteo.marea].n++;perMarea[u.meteo.marea].c+=n;}
     if(u.meteo.luna){perLuna[u.meteo.luna]=(perLuna[u.meteo.luna]||{n:0,c:0});perLuna[u.meteo.luna].n++;perLuna[u.meteo.luna].c+=n;}
@@ -1539,7 +1540,7 @@ function cancellatutti(){
 function esportaCSV(){
   if(!uscite.length){alert('Nessuna uscita da esportare.');return;}
   var h=['Data','Ora','Pescatore','Zona','Spot','Lat','Lon','Cielo','Vento km/h','Dir.vento','Temp aria °C','Temp acqua °C','Marea','Livello marea','Pressione','Tecnica','Voto','N.Catture','Catture','Note'];
-  var rows=uscite.map(function(u){return[u.data,u.ora,u.pescatore,u.zona,u.spot,u.lat,u.lon,u.meteo.cielo,u.meteo.vento_vel,u.meteo.vento_dir,u.meteo.temp,u.meteo.temp_acqua,u.meteo.marea,u.meteo.livello_marea,u.meteo.pressione,u.tecnica,u.voto,u.catture.length,u.catture.map(function(c){return c.specie+(c.peso?' '+c.peso:'')+(c.esca?' '+c.esca:'')+(c.esca_taglia?' '+c.esca_taglia:'')+(c.esca_colore?' '+c.esca_colore:'');}).join('; '),u.note].map(function(v){return '"'+String(v||'').replace(/"/g,'""')+'"';});});
+  var rows=uscite.map(function(u){if(!u.meteo)u.meteo={};if(!u.catture)u.catture=[];return[u.data,u.ora,u.pescatore,u.zona,u.spot,u.lat,u.lon,u.meteo.cielo,u.meteo.vento_vel,u.meteo.vento_dir,u.meteo.temp,u.meteo.temp_acqua,u.meteo.marea,u.meteo.livello_marea,u.meteo.pressione,u.tecnica,u.voto,u.catture.length,u.catture.map(function(c){return c.specie+(c.peso?' '+c.peso:'')+(c.esca?' '+c.esca:'')+(c.esca_taglia?' '+c.esca_taglia:'')+(c.esca_colore?' '+c.esca_colore:'');}).join('; '),u.note].map(function(v){return '"'+String(v||'').replace(/"/g,'""')+'"';});});
   dlFile([h.join(',')].concat(rows.map(function(r){return r.join(',');})).join('\n'),'diario_pesca.csv','text/csv');
 }
 function esportaJSON(){
