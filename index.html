@@ -207,7 +207,7 @@ if(localStorage.getItem('fd_pwd_ok')===_PWD_HASH){
     <div>
       <div class="header-title">🎣 Fishing Diary</div>
       <div style="font-size:16px;font-weight:600;color:#fff;opacity:.9;margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,.4);padding-left:1.6em">Laguna di Venezia</div>
-      <div style="font-size:12px;color:#fff;opacity:.85;margin-top:4px;padding-left:1.6em;letter-spacing:.05em;text-shadow:0 1px 3px rgba(0,0,0,.4)">vers. 4.3.28 · <a href="https://docs.google.com/forms/d/e/1FAIpQLSdixNuJt0e-KEVQgPTVMowOy4RxPMTRqrkozU_R-AoeFHy4zA/viewform?usp=header" target="_blank" style="color:#fff;opacity:.9;text-decoration:underline">✉️ Segnala un problema</a></div>
+      <div style="font-size:12px;color:#fff;opacity:.85;margin-top:4px;padding-left:1.6em;letter-spacing:.05em;text-shadow:0 1px 3px rgba(0,0,0,.4)">vers. 4.3.29 · <a href="https://docs.google.com/forms/d/e/1FAIpQLSdixNuJt0e-KEVQgPTVMowOy4RxPMTRqrkozU_R-AoeFHy4zA/viewform?usp=header" target="_blank" style="color:#fff;opacity:.9;text-decoration:underline">✉️ Segnala un problema</a></div>
       <div class="header-info" style="margin-top:8px">I dati vengono salvati nel browser. <b>Esporta</b> regolarmente in JSON/CSV per non perderli.</div>
     </div>
     <div class="header-pescatore">
@@ -229,6 +229,7 @@ if(localStorage.getItem('fd_pwd_ok')===_PWD_HASH){
   <div class="tab" onclick="showPanel('storico',this)">📋 Storico</div>
   <div class="tab" onclick="showPanel('mappa',this)">📍 Mappa</div>
   <div class="tab" onclick="showPanel('statistiche',this)">📊 Stats</div>
+  <div class="tab" onclick="showPanel('previsione',this)">🔮 Previsione</div>
 </div>
 
 <!-- GUIDA -->
@@ -672,6 +673,31 @@ if(localStorage.getItem('fd_pwd_ok')===_PWD_HASH){
 <div id="panel-statistiche" class="panel">
   <div id="stats-content"></div>
 </div>
+
+<div id="panel-previsione" class="panel">
+  <div style="padding:16px 4px">
+    <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">🔮 Previsione KNN</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px">Inserisci le condizioni previste — il motore trova le uscite più simili nel tuo storico e stima le catture attese.</div>
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px">Condizioni previste</div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Fase marea</label>
+      <div class="sel-wrap" style="margin-bottom:10px"><select id="knn-marea" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="inizio_crescente">Inizio crescente</option><option value="crescente">Crescente</option><option value="fine_crescente">Fine crescente</option><option value="inizio_calante">Inizio calante</option><option value="calante">Calante</option><option value="fine_calante">Fine calante</option></select></div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Fase lunare</label>
+      <div class="sel-wrap" style="margin-bottom:10px"><select id="knn-luna" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="nuova">Luna nuova</option><option value="crescente">Luna crescente</option><option value="piena">Luna piena</option><option value="calante">Luna calante</option></select></div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Temperatura acqua</label>
+      <div class="sel-wrap" style="margin-bottom:10px"><select id="knn-temp" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="10">10°C</option><option value="12">12°C</option><option value="14">14°C</option><option value="16">16°C</option><option value="18">18°C</option><option value="20">20°C</option><option value="22">22°C</option><option value="24">24°C</option><option value="26">26°C</option><option value="28">28°C</option></select></div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Vento (km/h)</label>
+      <div class="sel-wrap" style="margin-bottom:10px"><select id="knn-vento" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="0">Assente (0)</option><option value="5">Leggero (5)</option><option value="10">Moderato (10)</option><option value="15">Teso (15)</option><option value="20">Forte (20)</option></select></div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Cielo</label>
+      <div class="sel-wrap" style="margin-bottom:10px"><select id="knn-cielo" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="Sereno">Sereno</option><option value="Parz. nuvoloso">Parz. nuvoloso</option><option value="Nuvoloso">Nuvoloso</option></select></div>
+      <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Mese</label>
+      <div class="sel-wrap" style="margin-bottom:14px"><select id="knn-mese" style="width:100%;padding:8px 10px;background:var(--input);color:var(--text);border:0.5px solid var(--border);border-radius:8px;font-size:13px"><option value="">— seleziona —</option><option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option></select></div>
+      <button class="btn" style="width:100%;padding:11px;font-size:14px;font-weight:600" onclick="calcolaKNN()">📊 Calcola previsione</button>
+    </div>
+    <div id="knn-risultato"></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6;padding:10px;background:var(--card);border-radius:8px;border:0.5px solid var(--border)">⚠️ La previsione si basa sulle tue uscite passate (K=3 più simili). Migliora con ogni nuova uscita registrata. Non considera fattori non inseriti (correnti, baitfish, pressione di pesca).</div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -716,6 +742,7 @@ function showPanel(id,el){
   if(id==='nuova'){populateSpotDropdown();rilevafaseLunare(true);}
   if(id==='storico')renderStorico();
   if(id==='statistiche')renderStats();
+  if(id==='previsione')initKNN();
 }
 function initStorage(){
   try{var r=localStorage.getItem('pesca_uscite');if(r)uscite=JSON.parse(r);}catch(e){uscite=[];}
@@ -723,6 +750,182 @@ function initStorage(){
   try{var r3=localStorage.getItem('pesca_pescatore');if(r3)document.getElementById('nome-pescatore').value=r3;}catch(e){}
 }
 function saveUscite(){try{localStorage.setItem('pesca_uscite',JSON.stringify(uscite));}catch(e){alert('⚠️ Spazio browser pieno — non è stato possibile salvare.\nEsporta i dati in JSON e svuota alcune uscite vecchie.');}}
+
+
+// ── KNN PREVISIONE ─────────────────────────────────────────────────────────────
+var KNN_K = 3;
+
+// Pesi calibrati sui dati reali 2025
+var KNN_PESI = {marea:0.30, temp:0.25, luna:0.15, mese:0.10, vento:0.10, cielo:0.10};
+
+// Ordine ciclico fase marea (distanza circolare su 6 posizioni)
+var MAREA_ORD = {inizio_crescente:0, crescente:1, fine_crescente:2, inizio_calante:3, calante:4, fine_calante:5};
+// Ordine ciclico luna (4 posizioni)
+var LUNA_ORD  = {nuova:0, crescente:1, piena:2, calante:3};
+
+function distCircolare(a, b, n) {
+  var d = Math.abs(a - b);
+  return Math.min(d, n - d) / (n / 2); // normalizzato 0-1
+}
+
+function distTemp(t1, t2) {
+  // Distanza dalla finestra ottimale 18-24°C — penalizza deviazioni
+  var centro = 21;
+  var d = Math.abs(t1 - t2) / 18; // range massimo atteso ~18°C
+  return Math.min(d, 1);
+}
+
+function distVento(v1, v2) {
+  return Math.abs(v1 - v2) / 20; // range 0-20
+}
+
+function distCielo(c1, c2) {
+  return c1 === c2 ? 0 : 1;
+}
+
+function distMese(m1, m2) {
+  return distCircolare(m1 - 1, m2 - 1, 12);
+}
+
+function calcolaDistanza(u, input) {
+  var score = 0, pesoTot = 0;
+
+  // Marea
+  if (u.meteo && u.meteo.marea && input.marea) {
+    var a = MAREA_ORD[u.meteo.marea], b = MAREA_ORD[input.marea];
+    if (a !== undefined && b !== undefined) {
+      score += KNN_PESI.marea * distCircolare(a, b, 6);
+      pesoTot += KNN_PESI.marea;
+    }
+  }
+  // Luna
+  if (u.meteo && u.meteo.luna && input.luna) {
+    var a = LUNA_ORD[u.meteo.luna], b = LUNA_ORD[input.luna];
+    if (a !== undefined && b !== undefined) {
+      score += KNN_PESI.luna * distCircolare(a, b, 4);
+      pesoTot += KNN_PESI.luna;
+    }
+  }
+  // Temperatura acqua
+  if (u.meteo && u.meteo.temp_acqua && input.temp) {
+    var t1 = parseFloat(u.meteo.temp_acqua), t2 = parseFloat(input.temp);
+    if (!isNaN(t1) && !isNaN(t2)) {
+      score += KNN_PESI.temp * distTemp(t1, t2);
+      pesoTot += KNN_PESI.temp;
+    }
+  }
+  // Vento
+  if (u.meteo && u.meteo.vento_vel !== undefined && input.vento !== '') {
+    var v1 = parseFloat(u.meteo.vento_vel), v2 = parseFloat(input.vento);
+    if (!isNaN(v1) && !isNaN(v2)) {
+      score += KNN_PESI.vento * distVento(v1, v2);
+      pesoTot += KNN_PESI.vento;
+    }
+  }
+  // Cielo
+  if (u.meteo && u.meteo.cielo && input.cielo) {
+    score += KNN_PESI.cielo * distCielo(u.meteo.cielo, input.cielo);
+    pesoTot += KNN_PESI.cielo;
+  }
+  // Mese
+  if (u.data && input.mese) {
+    var mU = parseInt(u.data.split('-')[1]);
+    var mI = parseInt(input.mese);
+    if (!isNaN(mU) && !isNaN(mI)) {
+      score += KNN_PESI.mese * distMese(mU, mI);
+      pesoTot += KNN_PESI.mese;
+    }
+  }
+
+  // Distanza normalizzata sui pesi effettivamente usati
+  return pesoTot > 0 ? score / pesoTot : 1;
+}
+
+function initKNN() {
+  // Pre-seleziona mese corrente
+  var mese = new Date().getMonth() + 1;
+  var sel = document.getElementById('knn-mese');
+  if (sel && !sel.value) sel.value = String(mese);
+}
+
+function calcolaKNN() {
+  var input = {
+    marea: document.getElementById('knn-marea').value,
+    luna:  document.getElementById('knn-luna').value,
+    temp:  document.getElementById('knn-temp').value,
+    vento: document.getElementById('knn-vento').value,
+    cielo: document.getElementById('knn-cielo').value,
+    mese:  document.getElementById('knn-mese').value
+  };
+
+  var div = document.getElementById('knn-risultato');
+
+  if (!input.marea || !input.luna || !input.temp) {
+    div.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px;text-align:center">Seleziona almeno marea, luna e temperatura acqua.</div>';
+    return;
+  }
+
+  if (uscite.length < 3) {
+    div.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:12px;text-align:center">Servono almeno 3 uscite registrate per calcolare la previsione.</div>';
+    return;
+  }
+
+  // Calcola distanza per ogni uscita
+  var conDist = uscite.map(function(u) {
+    return { u: u, dist: calcolaDistanza(u, input) };
+  });
+  conDist.sort(function(a, b) { return a.dist - b.dist; });
+  var vicini = conDist.slice(0, KNN_K);
+
+  // Media pesata inversamente alla distanza
+  var sommaPesata = 0, sommaPesi = 0;
+  vicini.forEach(function(v) {
+    var peso = 1 / (v.dist + 0.01);
+    sommaPesata += (v.u.catture ? v.u.catture.length : 0) * peso;
+    sommaPesi += peso;
+  });
+  var previsione = sommaPesi > 0 ? sommaPesata / sommaPesi : 0;
+
+  // Etichetta qualitativa
+  var label, colore;
+  if (previsione >= 4)      { label = '🔥 Giornata ottima';        colore = '#4ade80'; }
+  else if (previsione >= 2) { label = '👍 Condizioni favorevoli';  colore = '#facc15'; }
+  else if (previsione >= 1) { label = '🌥️ Qualche cattura possibile'; colore = '#94a3b8'; }
+  else                      { label = '💤 Giornata difficile';      colore = '#f87171'; }
+
+  var nomesMarea = {inizio_crescente:'↗ Inizio cresc.',crescente:'↑ Crescente',fine_crescente:'↑ Fine cresc.',inizio_calante:'↘ Inizio cal.',calante:'↓ Calante',fine_calante:'↓ Fine cal.'};
+  var nomeLuna  = {nuova:'🌑 Nuova',crescente:'🌒 Crescente',piena:'🌕 Piena',calante:'🌘 Calante'};
+
+  var html = '<div style="background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px">';
+  html += '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">Stima catture</div>';
+  html += '<div style="font-size:32px;font-weight:700;color:' + colore + ';margin-bottom:4px">' + previsione.toFixed(1) + ' <span style="font-size:16px">spigole</span></div>';
+  html += '<div style="font-size:14px;color:' + colore + ';font-weight:600;margin-bottom:14px">' + label + '</div>';
+  html += '<div style="font-size:11px;color:var(--muted);margin-bottom:12px">Basata su ' + KNN_K + ' uscite più simili · ' + uscite.length + ' uscite totali nel diario</div>';
+  html += '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Uscite analoghe trovate:</div>';
+
+  vicini.forEach(function(v, i) {
+    var u = v.u;
+    var somiglianza = Math.max(0, Math.round((1 - v.dist) * 100));
+    var catN = u.catture ? u.catture.length : 0;
+    var dataFmt = u.data || '—';
+    html += '<div style="border-left:3px solid var(--blu);padding:8px 10px;margin-bottom:8px;background:var(--bg);border-radius:0 6px 6px 0">';
+    html += '<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px">#' + (i+1) + ' · ' + dataFmt + ' <span style="color:var(--muted);font-weight:400">· somiglianza ' + somiglianza + '%</span></div>';
+    html += '<div style="font-size:12px;color:var(--muted)">';
+    html += '🐟 ' + catN + ' catture';
+    if (u.meteo) {
+      if (u.meteo.marea) html += ' · ' + (nomesMarea[u.meteo.marea] || u.meteo.marea);
+      if (u.meteo.temp_acqua) html += ' · ' + u.meteo.temp_acqua + 'C';
+      if (u.meteo.luna) html += ' · ' + (nomeLuna[u.meteo.luna] || u.meteo.luna);
+    }
+    html += '</div>';
+    if (u.note) html += '<div style="font-size:11px;color:var(--muted);margin-top:3px;font-style:italic">' + u.note + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  div.innerHTML = html;
+}
+// ── FINE KNN ────────────────────────────────────────────────────────────────────
 
 function saveSpots(){try{localStorage.setItem('pesca_spots',JSON.stringify(spots));}catch(e){alert('⚠️ Spazio browser pieno — spot non salvato.\nEsporta i dati in JSON e svuota alcune uscite vecchie.');}}
 function salvaPescatore(){try{localStorage.setItem('pesca_pescatore',document.getElementById('nome-pescatore').value);}catch(e){}}
